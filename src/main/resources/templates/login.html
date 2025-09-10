@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Contable - Login</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <!-- CSS estático -->
+    <link rel="stylesheet" th:href="@{/style.css}">
     <!-- Font Awesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 <div class="login-container">
     <h2>Sistema Contable</h2>
-    <form>
+    <!-- Formulario sin action ni method -->
+    <form id="loginForm">
         <div class="input-group user-input">
             <div class="circle-icon">
                 <i class="fa-solid fa-user"></i>
@@ -21,12 +23,14 @@
         <div class="input-group password-input">
             <input type="password" id="password" name="password" placeholder="Contraseña" required>
             <div class="circle-icon right">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-lock"></i>
             </div>
         </div>
         <button type="submit" class="btn-login">Entrar</button>
     </form>
 </div>
-<script src="/login.js"></script>
+
+<!-- JS de login -->
+<script th:src="@{/login.js}"></script>
 </body>
 </html>

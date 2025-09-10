@@ -1,0 +1,104 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fondo suave difuminado */
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #020024;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 47%, rgba(41, 113, 135, 1) 100%);
+    animation: gradientBG 12s ease infinite;
+}
+
+
+/* Caja login */
+.login-container {
+    background: #ffffff;
+    background: linear-gradient(90deg, rgb(255, 255, 255) 0%, rgb(200, 200, 203) 0%, rgb(255, 255, 255) 64%);
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+    width: 360px;
+    text-align: center;
+}
+
+/* Título */
+.login-container h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+/* Grupo inputs */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Input */
+.input-group input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    outline: none;
+    font-size: 1rem;
+    color: #000000;
+    background-color: #f6f5f4;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.50) 0%, rgba(0,0,0,0.50) 100%), radial-gradient(at 50% 0%, rgba(255,255,255,0.10) 0%, rgba(0,0,0,0.50) 50%);
+    background-blend-mode: soft-light,screen;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.input-group input:focus {
+    border-color: #2575fc;
+    background-color: #fff;
+}
+
+/* Círculo con ícono */
+.circle-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 0.7rem;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.password-input .circle-icon.right {
+    margin-left: 0.7rem;
+    margin-right: 0;
+}
+
+/* Botón */
+.btn-login {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
+}

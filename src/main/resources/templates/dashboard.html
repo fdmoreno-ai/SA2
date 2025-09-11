@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Bienvenido al Dashboard</h1>
+    <p>Usuario logueado: <span th:text="${session.usuarioLogueado.nombre}"></span></p>
+    <p>Rol: <span th:text="${session.usuarioLogueado.rol}"></span></p>
+
+    <!-- Visible solo para ADMIN -->
+    <div th:if="${usuario.rol.name() == 'ADMIN'}">
+        <h2>Opciones de administración</h2>
+        <ul>
+            <li><a href="#">Gestionar usuarios</a></li>
+            <li><a th:href="@{/plan-cuentas}">Plan de Cuentas</a></li>
+        </ul>
+    </div>
+
+    <!-- Visible solo para USUARIO -->
+    <div th:if="${usuario.rol.name() == 'USUARIO'}">
+        <h2>Opciones de usuario</h2>
+        <ul>
+            <li><a href="#">Ver plan de cuentas</a></li>
+            <li><a href="#">Registrar asiento</a></li>
+        </ul>
+    </div>
+
+    <!-- Botón de cerrar sesión -->
+    <form action="/logout" method="post">
+        <button type="submit">Cerrar sesión</button>
+    </form>
+
+</body>
+</html>

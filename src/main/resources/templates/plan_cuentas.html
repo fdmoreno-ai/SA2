@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Cuentas</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<h1>Plan de Cuentas</h1>
+
+<!-- Formulario para agregar nuevas cuentas -->
+<h2>Agregar cuenta</h2>
+<form id="form-agregar-cuenta">
+    <input type="text" name="codigo" placeholder="Código" required>
+    <input type="text" name="nombre" placeholder="Nombre" required>
+    <select name="tipo">
+        <option th:each="t : ${T(com.proyecto.sa2.models.TipoCuenta).values()}"
+                th:value="${t}" th:text="${t}"></option>
+    </select>
+    <button type="submit">Agregar</button>
+</form>
+
+
+<!-- Lista de cuentas existentes -->
+<h2>Lista de cuentas</h2>
+<div id="mensaje" style="display:none; padding:10px; margin-bottom:10px; border-radius:5px;"></div>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Saldo</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="cuenta : ${cuentas}">
+        <td th:text="${cuenta.codigo}"></td>
+        <td th:text="${cuenta.nombre}"></td>
+        <td th:text="${cuenta.tipo}"></td>
+        <td th:text="${cuenta.saldo}"></td>
+        <td>
+            <form th:action="@{/plan-cuentas/eliminar}" method="post" style="display:inline;">
+                <input type="hidden" name="codigo" th:value="${cuenta.codigo}">
+                <button type="submit">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+<a th:href="@{/dashboard}">Volver al Dashboard</a>
+
+<script src="/plan_cuentas.js"></script>
+
+</body>
+</html>

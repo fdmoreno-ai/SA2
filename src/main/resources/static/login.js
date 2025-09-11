@@ -1,34 +1,23 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.querySelector("form");
-
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault(); // Evita que la página se recargue
-
-        const usuario = document.getElementById("usuario").value;
-        const password = document.getElementById("password").value;
-
-        try {
-            const res = await fetch("http://localhost:8080/unnamed/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ usuario, password })
-            });
-
-            const data = await res.json();
-
-            if (data.success) {
-                alert("Login exitoso. Bienvenido " + usuario);
-                // Podés redirigir a otra página después:
-                // window.location.href = "dashboard.html";
-            } else {
-                alert("Usuario o contraseña incorrectos");
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert("Error al conectar con el backend");
-        }
-    });
-});
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Contable - Login</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="login-container">
+    <h2>Sistema Contable</h2>
+    <form method="post" action="/login">
+        <div class="input-group user-input">
+            <input type="text" id="usuario" name="usuario" placeholder="Usuario" required/>
+        </div>
+        <div class="input-group password-input">
+            <input type="password" id="password" name="password" placeholder="Password" required/>
+        </div>
+        <button type="submit" class="btn-login">Entrar</button>
+    </form>
+</div>
+</body>
+</html>

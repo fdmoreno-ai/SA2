@@ -18,7 +18,7 @@ public class Asiento {
     private String concepto;
 
     @OneToMany(mappedBy = "asiento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetalleAsiento> detalles = new ArrayList<>();
+    private List<DetalleAsiento> detalles = new ArrayList<>();//Podriamos quitar la lista y vincularlas con FK?
 
     public Asiento() {
         this.fecha = LocalDate.now();

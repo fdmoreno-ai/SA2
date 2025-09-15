@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAgregarLinea = document.getElementById("btn-agregar-linea");
     const contenedorLineas = document.getElementById("detalle-asientos");
 
+    // Parseamos las cuentas desde el data-attribute
+    const cuentas = JSON.parse(form.dataset.cuentas || "[]");
+
     function mostrarMensaje(texto, tipo) {
         mensajeDiv.textContent = texto;
         mensajeDiv.style.display = "block";
@@ -20,46 +23,52 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => mensajeDiv.style.display = "none", 3000);
     }
 
-    // Función para agregar una nueva línea al formulario
-    function agregarLinea() {
+    function agregarLinea(cuentaCodigo = "", debe = 0, haber = 0) {
         const linea = document.createElement("div");
         linea.className = "linea-detalle";
-        linea.innerHTML = `
-            <select name="cuentas" required>
-                <option th:each="c : ${cuentas}" th:value="${c.codigo}" th:text="${c.nombre}"></option>
-            </select>
-            <input type="number" name="debe" placeholder="Debe" step="0.01" value="0">
-            <input type="number" name="haber" placeholder="Haber" step="0.01" value="0">
-            <button type="button" class="btn-eliminar-linea">X</button>
-        `;
-        contenedorLineas.appendChild(linea);
 
-        // Botón eliminar línea
-        linea.querySelector(".btn-eliminar-linea").addEventListener("click", () => linea.remove());
-    }
+        // Select con todas las cuentas
+        const select = document.createElement("select");
+        select.name = "cuentas";
+        select.required = true;
 
-    btnAgregarLinea.addEventListener("click", agregarLinea);
-
-    // Actualizar tabla de asientos desde backend
-    async function actualizarTabla() {
-        const res = await fetch("/asientos/lista");
-        const asientos = await res.json();
-        let html = "";
-        asientos.forEach(a => {
-            a.detalles.forEach(d => {
-                html += `<tr>
-                    <td>${a.fecha}</td>
-                    <td>${a.concepto}</td>
-                    <td>${d.cuenta.nombre}</td>
-                    <td>${d.debe}</td>
-                    <td>${d.haber}</td>
-                </tr>`;
-            });
+        cuentas.forEach(c => {
+            const option = document.createElement("option");
+            option.value = c.codigo;
+            option.textContent = c.nombre;
+            if(c.codigo === cuentaCodigo) option.selected = true;
+            select.appendChild(option);
         });
-        tablaAsientos.innerHTML = html;
+
+        const inputDebe = document.createElement("input");
+        inputDebe.type = "number";
+        inputDebe.name = "debe";
+        inputDebe.placeholder = "Debe";
+        inputDebe.step = "0.01";
+        inputDebe.value = debe;
+
+        const inputHaber = document.createElement("input");
+        inputHaber.type = "number";
+        inputHaber.name = "haber";
+        inputHaber.placeholder = "Haber";
+        inputHaber.step = "0.01";
+        inputHaber.value = haber;
+
+        const btnEliminar = document.createElement("button");
+        btnEliminar.type = "button";
+        btnEliminar.className = "btn-eliminar-linea";
+        btnEliminar.textContent = "X";
+        btnEliminar.addEventListener("click", () => linea.remove());
+
+        linea.appendChild(select);
+        linea.appendChild(inputDebe);
+        linea.appendChild(inputHaber);
+        linea.appendChild(btnEliminar);
+        contenedorLineas.appendChild(linea);
     }
 
-    // Validación que Debe = Haber
+    btnAgregarLinea.addEventListener("click", () => agregarLinea());
+
     function validarBalance(lineas) {
         let totalDebe = 0;
         let totalHaber = 0;
@@ -70,7 +79,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return totalDebe === totalHaber;
     }
 
-    // Enviar formulario
+    // Función actualizada para que la tabla se muestre correctamente
+    async function actualizarTabla() {
+        const res = await fetch("/asientos/lista");
+        const asientos = await res.json();
+        let html = "";
+
+        asientos.forEach(a => {
+            const fecha = new Date(a.fecha).toLocaleDateString();
+            a.detalles.forEach(d => {
+                const nombreCuenta = d.cuenta.nombre || d.cuenta;
+                html += `<tr>
+                    <td>${fecha}</td>
+                    <td>${a.concepto}</td>
+                    <td>${nombreCuenta}</td>
+                    <td>${d.debe}</td>
+                    <td>${d.haber}</td>
+                </tr>`;
+            });
+        });
+
+        tablaAsientos.innerHTML = html;
+    }
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const concepto = form.concepto.value;
@@ -95,9 +126,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const result = await res.json();
         mostrarMensaje(result.mensaje, result.exito ? "exito" : "error");
-        if(result.exito) form.reset();
-        actualizarTabla();
+
+        if(result.exito) {
+            form.reset();
+            contenedorLineas.innerHTML = "";
+            agregarLinea();
+            await actualizarTabla(); // Esperamos que la tabla se actualice
+        }
     });
 
-    actualizarTabla(); // carga inicial
+    // Inicializamos con una línea vacía y cargamos la tabla
+    agregarLinea();
+    actualizarTabla();
 });

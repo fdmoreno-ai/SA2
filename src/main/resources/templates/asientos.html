@@ -5,35 +5,11 @@
     <title>Asientos Contables</title>
     <link rel="stylesheet" href="/style.css">
     <style>
-        .linea-detalle {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 5px;
-            align-items: center;
-        }
-        .linea-detalle input, .linea-detalle select {
-            padding: 5px;
-        }
-        .btn-eliminar-linea {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 3px 7px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        #btn-agregar-linea {
-            margin-top: 5px;
-            margin-bottom: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        #mensaje {
-            display: none;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
+        .linea-detalle { display: flex; gap: 5px; margin-bottom: 5px; align-items: center; }
+        .linea-detalle input, .linea-detalle select { padding: 5px; }
+        .btn-eliminar-linea { background-color: #dc3545; color: white; border: none; padding: 3px 7px; cursor: pointer; border-radius: 3px; }
+        #btn-agregar-linea { margin-top: 5px; margin-bottom: 10px; padding: 5px 10px; cursor: pointer; }
+        #mensaje { display: none; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -42,17 +18,11 @@
 <div id="mensaje"></div>
 
 <h2>Agregar Asiento</h2>
-<form id="form-agregar-asiento">
+<!-- Form con data-cuentas desde Thymeleaf -->
+<form id="form-agregar-asiento" th:attr="data-cuentas=${cuentasJson}">
     <input type="text" name="concepto" placeholder="Concepto" required>
     <div id="detalle-asientos">
-        <div class="linea-detalle">
-            <select name="cuentas" required>
-                <option th:each="c : ${cuentas}" th:value="${c.codigo}" th:text="${c.nombre}"></option>
-            </select>
-            <input type="number" name="debe" placeholder="Debe" step="0.01" value="0">
-            <input type="number" name="haber" placeholder="Haber" step="0.01" value="0">
-            <button type="button" class="btn-eliminar-linea">X</button>
-        </div>
+        <!-- La primera línea se generará dinámicamente con JS -->
     </div>
     <button type="button" id="btn-agregar-linea">Agregar línea</button>
     <br>

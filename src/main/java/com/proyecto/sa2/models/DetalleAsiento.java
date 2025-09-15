@@ -1,17 +1,41 @@
 package com.proyecto.sa2.models;
 
-public class DetalleAsiento {
-    private Cuenta cuenta;
-    private double debe;
-    private double haber;
+import jakarta.persistence.*;
 
-    public DetalleAsiento(Cuenta cuenta, double debe, double haber) {
+@Entity
+public class DetalleAsiento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String cuenta;
+
+    private Double debe;
+
+    private Double haber;
+
+    @ManyToOne
+    @JoinColumn(name = "asiento_id")
+    private Asiento asiento;
+
+    public DetalleAsiento() {}
+
+    public DetalleAsiento(String cuenta, Double debe, Double haber, Asiento asiento) {
         this.cuenta = cuenta;
         this.debe = debe;
         this.haber = haber;
+        this.asiento = asiento;
     }
 
-    public Cuenta getCuenta() { return cuenta; }
-    public double getDebe() { return debe; }
-    public double getHaber() { return haber; }
+    // Getters y setters
+    public Integer getId() { return id; }
+    public String getCuenta() { return cuenta; }
+    public void setCuenta(String cuenta) { this.cuenta = cuenta; }
+    public Double getDebe() { return debe; }
+    public void setDebe(Double debe) { this.debe = debe; }
+    public Double getHaber() { return haber; }
+    public void setHaber(Double haber) { this.haber = haber; }
+    public Asiento getAsiento() { return asiento; }
+    public void setAsiento(Asiento asiento) { this.asiento = asiento; }
 }

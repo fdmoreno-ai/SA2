@@ -1,11 +1,21 @@
 package com.proyecto.sa2.models;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Cuenta {
 
-    private String codigo;
+    @Id
+    private String codigo; // usamos el código como PK
+
     private String nombre;
+
+    @Enumerated(EnumType.STRING)
     private TipoCuenta tipo;
+
     private double saldo;
+
+    public Cuenta() {}
 
     public Cuenta(String codigo, String nombre, TipoCuenta tipo) {
         this.codigo = codigo;

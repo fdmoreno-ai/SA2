@@ -1,31 +1,31 @@
 package com.proyecto.sa2.services;
 
 import com.proyecto.sa2.models.Asiento;
-import org.springframework.stereotype.Service;  // << importante
+import com.proyecto.sa2.models.DetalleAsiento;
+import com.proyecto.sa2.repositories.AsientoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class AsientoService {
-    private final List<Asiento> asientos = new ArrayList<>();
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
 
-    public Asiento agregarAsiento(Asiento a) {
-        double totalDebe = a.getDetalles().stream().mapToDouble(d -> d.getDebe()).sum();
-        double totalHaber = a.getDetalles().stream().mapToDouble(d -> d.getHaber()).sum();
+    private final AsientoRepository asientoRepository;
 
-        if (totalDebe != totalHaber) {
-            return null;
-        }
+    public AsientoService(AsientoRepository asientoRepository) {
+        this.asientoRepository = asientoRepository;
+    }
 
-        a.setId(idGenerator.getAndIncrement());
-        asientos.add(a);
-        return a;
+    @Transactional
+    public Asiento guardarAsiento(String concepto, List<DetalleAsiento> detalles) {
+        Asiento asiento = new Asiento(concepto);
+        detalles.forEach(d -> d.setAsiento(asiento));
+        asiento.setDetalles(detalles);
+        return asientoRepository.save(asiento);
     }
 
     public List<Asiento> listarAsientos() {
-        return new ArrayList<>(asientos);
+        return asientoRepository.findAll();
     }
 }

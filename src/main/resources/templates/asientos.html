@@ -4,14 +4,43 @@
     <meta charset="UTF-8">
     <title>Asientos Contables</title>
     <link rel="stylesheet" href="/style.css">
+    <style>
+        .linea-detalle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+        .linea-detalle input, .linea-detalle select {
+            padding: 5px;
+        }
+        .btn-eliminar-linea {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 3px 7px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        #btn-agregar-linea {
+            margin-top: 5px;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #mensaje {
+            display: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 <h1>Asientos Contables</h1>
 
-<!-- Mensaje dinámico -->
-<div id="mensaje" style="display:none; padding:10px; margin-bottom:10px; border-radius:5px;"></div>
+<div id="mensaje"></div>
 
-<!-- Formulario para agregar asiento -->
 <h2>Agregar Asiento</h2>
 <form id="form-agregar-asiento">
     <input type="text" name="concepto" placeholder="Concepto" required>
@@ -22,40 +51,31 @@
             </select>
             <input type="number" name="debe" placeholder="Debe" step="0.01" value="0">
             <input type="number" name="haber" placeholder="Haber" step="0.01" value="0">
+            <button type="button" class="btn-eliminar-linea">X</button>
         </div>
     </div>
+    <button type="button" id="btn-agregar-linea">Agregar línea</button>
+    <br>
     <button type="submit">Agregar Asiento</button>
 </form>
 
-<!-- Lista de asientos -->
 <h2>Lista de Asientos</h2>
 <table border="1">
     <thead>
     <tr>
-        <th>ID</th>
         <th>Fecha</th>
         <th>Concepto</th>
-        <th>Detalles</th>
+        <th>Cuenta</th>
+        <th>Debe</th>
+        <th>Haber</th>
     </tr>
     </thead>
-    <tbody id="tabla-asientos">
-    <tr th:each="a : ${asientos}">
-        <td th:text="${a.id}"></td>
-        <td th:text="${a.fecha}"></td>
-        <td th:text="${a.concepto}"></td>
-        <td>
-            <ul>
-                <li th:each="d : ${a.detalles}" th:text="${d.cuenta.nombre + ' - Debe: ' + d.debe + ', Haber: ' + d.haber}"></li>
-            </ul>
-        </td>
-    </tr>
-    </tbody>
+    <tbody id="tabla-asientos"></tbody>
 </table>
 
 <br>
 <a th:href="@{/dashboard}">Volver al Dashboard</a>
 
 <script src="/asientos.js"></script>
-
 </body>
 </html>

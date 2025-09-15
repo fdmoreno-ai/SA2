@@ -5,11 +5,35 @@
     <title>Asientos Contables</title>
     <link rel="stylesheet" href="/style.css">
     <style>
-        .linea-detalle { display: flex; gap: 5px; margin-bottom: 5px; align-items: center; }
-        .linea-detalle input, .linea-detalle select { padding: 5px; }
-        .btn-eliminar-linea { background-color: #dc3545; color: white; border: none; padding: 3px 7px; cursor: pointer; border-radius: 3px; }
-        #btn-agregar-linea { margin-top: 5px; margin-bottom: 10px; padding: 5px 10px; cursor: pointer; }
-        #mensaje { display: none; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .linea-detalle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+        .linea-detalle input, .linea-detalle select {
+            padding: 5px;
+        }
+        .btn-eliminar-linea {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 3px 7px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        #btn-agregar-linea {
+            margin-top: 5px;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #mensaje {
+            display: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -18,11 +42,10 @@
 <div id="mensaje"></div>
 
 <h2>Agregar Asiento</h2>
-<!-- Form con data-cuentas desde Thymeleaf -->
-<form id="form-agregar-asiento" th:attr="data-cuentas=${cuentasJson}">
+<form id="form-agregar-asiento" th:data-cuentas="${cuentasJson}">
     <input type="text" name="concepto" placeholder="Concepto" required>
     <div id="detalle-asientos">
-        <!-- La primera línea se generará dinámicamente con JS -->
+        <!-- Aquí se agregan dinámicamente las filas -->
     </div>
     <button type="button" id="btn-agregar-linea">Agregar línea</button>
     <br>
@@ -46,6 +69,141 @@
 <br>
 <a th:href="@{/dashboard}">Volver al Dashboard</a>
 
-<script src="/asientos.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("form-agregar-asiento");
+        const tablaAsientos = document.getElementById("tabla-asientos");
+        const mensajeDiv = document.getElementById("mensaje");
+        const btnAgregarLinea = document.getElementById("btn-agregar-linea");
+        const contenedorLineas = document.getElementById("detalle-asientos");
+
+        function mostrarMensaje(texto, tipo) {
+            mensajeDiv.textContent = texto;
+            mensajeDiv.style.display = "block";
+            if(tipo === "exito") {
+                mensajeDiv.style.backgroundColor = "#d4edda";
+                mensajeDiv.style.color = "#155724";
+                mensajeDiv.style.border = "1px solid #c3e6cb";
+            } else {
+                mensajeDiv.style.backgroundColor = "#f8d7da";
+                mensajeDiv.style.color = "#721c24";
+                mensajeDiv.style.border = "1px solid #f5c6cb";
+            }
+            setTimeout(() => mensajeDiv.style.display = "none", 3000);
+        }
+
+        function agregarLinea(cuentaCodigo = "", debe = 0, haber = 0) {
+            const linea = document.createElement("div");
+            linea.className = "linea-detalle";
+
+            const select = document.createElement("select");
+            select.name = "cuentas";
+            select.required = true;
+
+            const cuentas = JSON.parse(form.dataset.cuentas || "[]");
+            cuentas.forEach(c => {
+                const option = document.createElement("option");
+                option.value = c.codigo;
+                option.textContent = c.nombre;
+                if(c.codigo === cuentaCodigo) option.selected = true;
+                select.appendChild(option);
+            });
+
+            const inputDebe = document.createElement("input");
+            inputDebe.type = "number";
+            inputDebe.name = "debe";
+            inputDebe.placeholder = "Debe";
+            inputDebe.step = "0.01";
+            inputDebe.value = debe;
+
+            const inputHaber = document.createElement("input");
+            inputHaber.type = "number";
+            inputHaber.name = "haber";
+            inputHaber.placeholder = "Haber";
+            inputHaber.step = "0.01";
+            inputHaber.value = haber;
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.type = "button";
+            btnEliminar.className = "btn-eliminar-linea";
+            btnEliminar.textContent = "X";
+            btnEliminar.addEventListener("click", () => linea.remove());
+
+            linea.appendChild(select);
+            linea.appendChild(inputDebe);
+            linea.appendChild(inputHaber);
+            linea.appendChild(btnEliminar);
+            contenedorLineas.appendChild(linea);
+        }
+
+        btnAgregarLinea.addEventListener("click", () => agregarLinea());
+
+        function validarBalance(lineas) {
+            let totalDebe = 0;
+            let totalHaber = 0;
+            lineas.forEach(l => {
+                totalDebe += parseFloat(l.querySelector("input[name='debe']").value || 0);
+                totalHaber += parseFloat(l.querySelector("input[name='haber']").value || 0);
+            });
+            return totalDebe === totalHaber;
+        }
+
+        async function actualizarTabla() {
+            const res = await fetch("/asientos/lista");
+            const asientos = await res.json();
+            let html = "";
+            asientos.forEach(a => {
+                a.detalles.forEach(d => {
+                    html += `<tr>
+                    <td>${a.fecha}</td>
+                    <td>${a.concepto}</td>
+                    <td>${d.cuentaCodigo} - ${d.cuentaNombre}</td>
+                    <td>${d.debe}</td>
+                    <td>${d.haber}</td>
+                </tr>`;
+                });
+            });
+            tablaAsientos.innerHTML = html;
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const concepto = form.concepto.value;
+            const lineas = Array.from(contenedorLineas.querySelectorAll(".linea-detalle"));
+
+            if(!validarBalance(lineas)) {
+                mostrarMensaje("Error: Debe y Haber no están balanceados", "error");
+                return;
+            }
+
+            const detalles = lineas.map(l => ({
+                cuentaCodigo: l.querySelector("select[name='cuentas']").value,
+                debe: parseFloat(l.querySelector("input[name='debe']").value || 0),
+                haber: parseFloat(l.querySelector("input[name='haber']").value || 0)
+            }));
+
+            const res = await fetch("/asientos/agregar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ concepto, detalles })
+            });
+
+            const result = await res.json();
+            mostrarMensaje(result.mensaje, result.exito ? "exito" : "error");
+
+            if(result.exito) {
+                form.reset();
+                contenedorLineas.innerHTML = "";
+                agregarLinea();
+                actualizarTabla();
+            }
+        });
+
+        // Inicializamos
+        agregarLinea();
+        actualizarTabla();
+    });
+</script>
+
 </body>
 </html>

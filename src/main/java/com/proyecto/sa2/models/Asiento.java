@@ -1,8 +1,7 @@
 package com.proyecto.sa2.models;
 
-import com.proyecto.sa2.models.DetalleAsiento;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,29 +10,41 @@ public class Asiento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    private LocalDate fecha;
+    private LocalDateTime fecha;
 
     private String concepto;
 
-    @OneToMany(mappedBy = "asiento", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetalleAsiento> detalles = new ArrayList<>();//Podriamos quitar la lista y vincularlas con FK?
+    @OneToMany(mappedBy = "asiento", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<DetalleAsiento> detalles = new ArrayList<>();
 
     public Asiento() {
-        this.fecha = LocalDate.now();
+        this.fecha = LocalDateTime.now();
     }
 
     public Asiento(String concepto) {
-        this.fecha = LocalDate.now();
         this.concepto = concepto;
+        this.fecha = LocalDateTime.now();
     }
 
-    // Getters y setters
-    public Integer getId() { return id; }
-    public LocalDate getFecha() { return fecha; }
+    // Getters y Setters
+    public Long getId() { return id; }
+
+    public LocalDateTime getFecha() { return fecha; }
+
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
     public String getConcepto() { return concepto; }
+
     public void setConcepto(String concepto) { this.concepto = concepto; }
+
     public List<DetalleAsiento> getDetalles() { return detalles; }
+
     public void setDetalles(List<DetalleAsiento> detalles) { this.detalles = detalles; }
+
+    public void agregarDetalle(DetalleAsiento detalle) {
+        detalle.setAsiento(this);
+        this.detalles.add(detalle);
+    }
 }

@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAgregarLinea = document.getElementById("btn-agregar-linea");
     const contenedorLineas = document.getElementById("detalle-asientos");
 
-    // Parseamos las cuentas desde el data-attribute
-    const cuentas = JSON.parse(form.dataset.cuentas || "[]");
+    // Tomamos las cuentas desde el atributo data-cuentasJSON del HTML
+    const cuentas = JSON.parse(form.dataset.cuentasJson || "[]");
 
     function mostrarMensaje(texto, tipo) {
         mensajeDiv.textContent = texto;
@@ -79,28 +79,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return totalDebe === totalHaber;
     }
 
-    // Función actualizada para que la tabla se muestre correctamente
     async function actualizarTabla() {
         const res = await fetch("/asientos/lista");
         const asientos = await res.json();
         let html = "";
-
         asientos.forEach(a => {
-            const fecha = new Date(a.fecha).toLocaleDateString();
             a.detalles.forEach(d => {
-                const nombreCuenta = d.cuenta.nombre || d.cuenta;
                 html += `<tr>
-                    <td>${fecha}</td>
-                    <td>${a.concepto}</td>
-                    <td>${nombreCuenta}</td>
-                    <td>${d.debe}</td>
-                    <td>${d.haber}</td>
-                </tr>`;
+                <td>${a.fecha}</td>
+                <td>${a.concepto}</td>
+                <td>${d.cuentaCodigo} - ${d.cuentaNombre}</td>
+                <td>${d.debe}</td>
+                <td>${d.haber}</td>
+            </tr>`;
             });
         });
-
         tablaAsientos.innerHTML = html;
     }
+
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -113,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const detalles = lineas.map(l => ({
-            cuenta: l.querySelector("select[name='cuentas']").value,
+            cuentaCodigo: l.querySelector("select[name='cuentas']").value,
             debe: parseFloat(l.querySelector("input[name='debe']").value || 0),
             haber: parseFloat(l.querySelector("input[name='haber']").value || 0)
         }));
@@ -131,11 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
             form.reset();
             contenedorLineas.innerHTML = "";
             agregarLinea();
-            await actualizarTabla(); // Esperamos que la tabla se actualice
+            actualizarTabla();
         }
     });
 
-    // Inicializamos con una línea vacía y cargamos la tabla
+    // Inicializamos
     agregarLinea();
     actualizarTabla();
 });

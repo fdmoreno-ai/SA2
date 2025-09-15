@@ -31,14 +31,11 @@ public class AsientoController {
         List<Cuenta> cuentas = cuentaService.listarCuentas();
         model.addAttribute("cuentas", cuentas);
 
-        // Convertimos las cuentas a JSON para el JS
+        // Convertir a JSON para JS
         ObjectMapper mapper = new ObjectMapper();
         String cuentasJson = mapper.writeValueAsString(
                 cuentas.stream()
-                        .map(c -> Map.of(
-                                "codigo", c.getCodigo(),
-                                "nombre", c.getNombre()
-                        ))
+                        .map(c -> Map.of("codigo", c.getCodigo(), "nombre", c.getNombre()))
                         .collect(Collectors.toList())
         );
         model.addAttribute("cuentasJson", cuentasJson);
@@ -48,9 +45,25 @@ public class AsientoController {
 
     @GetMapping("/lista")
     @ResponseBody
-    public List<Asiento> listarAsientos() {
-        return asientoService.listarAsientos();
+    public List<Map<String, Object>> listarAsientos() {
+        return asientoService.listarAsientos().stream().map(asiento -> Map.of(
+                "fecha", asiento.getFecha(),
+                "concepto", asiento.getConcepto(),
+                "detalles", asiento.getDetalles().stream().map(det -> {
+                    Map<String, Object> cuentaMap = Map.of(
+                            "cuentaCodigo", det.getCuenta() != null ? det.getCuenta().getCodigo() : "",
+                            "cuentaNombre", det.getCuenta() != null ? det.getCuenta().getNombre() : ""
+                    );
+                    return Map.of(
+                            "cuentaCodigo", cuentaMap.get("cuentaCodigo"),
+                            "cuentaNombre", cuentaMap.get("cuentaNombre"),
+                            "debe", det.getDebe(),
+                            "haber", det.getHaber()
+                    );
+                }).toList()
+        )).toList();
     }
+
 
     @PostMapping("/agregar")
     @ResponseBody

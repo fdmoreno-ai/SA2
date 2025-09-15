@@ -4,7 +4,6 @@ import com.proyecto.sa2.models.Asiento;
 import com.proyecto.sa2.models.Cuenta;
 import com.proyecto.sa2.models.DetalleAsiento;
 import com.proyecto.sa2.repositories.AsientoRepository;
-import com.proyecto.sa2.repositories.CuentaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,24 +15,28 @@ import java.util.stream.Collectors;
 public class AsientoService {
 
     private final AsientoRepository asientoRepository;
-    private final CuentaRepository cuentaRepository;
+    private final CuentaService cuentaService;
 
-    public AsientoService(CuentaRepository cuentaRepository, AsientoRepository asientoRepository) {
-        this.cuentaRepository = cuentaRepository;
+    public AsientoService(AsientoRepository asientoRepository, CuentaService cuentaService) {
         this.asientoRepository = asientoRepository;
+        this.cuentaService = cuentaService;
     }
 
     @Transactional
-    public Asiento guardarAsiento(String concepto, List<Map<String, Object>> detallesRaw) {
+    public Asiento guardarAsiento(String concepto, List<Map<String,Object>> detallesRaw) {
         Asiento asiento = new Asiento(concepto);
 
         List<DetalleAsiento> detalles = detallesRaw.stream()
-                .map(d -> new DetalleAsiento(
-                        (String) d.get("cuenta"),
-                        Double.parseDouble(d.get("debe").toString()),
-                        Double.parseDouble(d.get("haber").toString()),
-                        asiento
-                ))
+                .map(d -> {
+                    String codigoCuenta = (String) d.get("cuentaCodigo"); // desde JS
+                    Cuenta cuenta = cuentaService.buscarCuenta(codigoCuenta); // <-- cambio de nombre
+                    if (cuenta == null) {
+                        throw new RuntimeException("Cuenta no encontrada: " + codigoCuenta);
+                    }
+                    double debe = Double.parseDouble(d.get("debe").toString());
+                    double haber = Double.parseDouble(d.get("haber").toString());
+                    return new DetalleAsiento(cuenta, debe, haber, asiento);
+                })
                 .collect(Collectors.toList());
 
         asiento.setDetalles(detalles);
@@ -42,9 +45,5 @@ public class AsientoService {
 
     public List<Asiento> listarAsientos() {
         return asientoRepository.findAll();
-    }
-
-    public List<Cuenta> listarCuentas() {
-        return cuentaRepository.findAll();
     }
 }

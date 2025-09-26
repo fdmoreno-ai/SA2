@@ -34,7 +34,7 @@ public class UsuarioService {
     public Usuario saveUsuario(Usuario usuario) {
         // Encode password if it's a new user or password is changed
         if (usuario.getId() == null || (usuario.getPassword() != null && !usuario.getPassword().isEmpty())) {
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); //Me cago en todo 🤮🤮🤮
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         }
         return usuarioRepository.save(usuario);
     }

@@ -33,6 +33,15 @@ public class CuentaService {
     }
 
     public void saveCuenta(Cuenta cuenta) {
+        if (cuenta.getId() != null) {
+            if (cuentaRepository.existsByCodigoAndIdNot(cuenta.getCodigo(), cuenta.getId())) {
+                throw new CodigoCuentaExistsException("Ya existe una cuenta con el código " + cuenta.getCodigo());
+            }
+        } else {
+            if (cuentaRepository.existsByCodigo(cuenta.getCodigo())) {
+                throw new CodigoCuentaExistsException("Ya existe una cuenta con el código " + cuenta.getCodigo());
+            }
+        }
         cuentaRepository.save(cuenta);
     }
 

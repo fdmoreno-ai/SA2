@@ -11,4 +11,6 @@ import java.util.List;
 
 public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
     List<Cuenta> findByActivoTrue();
+    boolean existsByCodigo(String codigo);
+    boolean existsByCodigoAndIdNot(String codigo, Long id);
 }

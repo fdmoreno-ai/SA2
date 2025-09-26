@@ -2,6 +2,7 @@ package com.example.SA2Gemini.controller;
 
 import com.example.SA2Gemini.entity.Cuenta;
 import com.example.SA2Gemini.entity.TipoCuenta;
+import com.example.SA2Gemini.service.CodigoCuentaExistsException;
 import com.example.SA2Gemini.service.CuentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,9 +30,15 @@ public class CuentaController {
     }
 
     @PostMapping("/admin/cuentas")
-    public String saveCuenta(@ModelAttribute("cuenta") Cuenta cuenta) {
-        cuentaService.saveCuenta(cuenta);
-        return "redirect:/cuentas";
+    public String saveCuenta(@ModelAttribute("cuenta") Cuenta cuenta, Model model) {
+        try {
+            cuentaService.saveCuenta(cuenta);
+            return "redirect:/cuentas";
+        } catch (CodigoCuentaExistsException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("tiposCuenta", TipoCuenta.values());
+            return "cuenta-form";
+        }
     }
 
     @GetMapping("/admin/cuentas/editar/{id}")
@@ -42,7 +49,7 @@ public class CuentaController {
     }
 
     @PostMapping("/admin/cuentas/editar/{id}")
-    public String updateCuenta(@PathVariable Long id, @ModelAttribute("cuenta") Cuenta cuenta) {
+    public String updateCuenta(@PathVariable Long id, @ModelAttribute("cuenta") Cuenta cuenta, Model model) {
         Cuenta existingCuenta = cuentaService.getCuentaById(id);
         if (existingCuenta != null) {
             // Modification restriction: do not allow changing the code if the account is in use.
@@ -54,7 +61,13 @@ public class CuentaController {
                 existingCuenta.setNombre(cuenta.getNombre());
                 existingCuenta.setTipoCuenta(cuenta.getTipoCuenta()); // Allow tipoCuenta change
             }
-            cuentaService.saveCuenta(existingCuenta);
+            try {
+                cuentaService.saveCuenta(existingCuenta);
+            } catch (CodigoCuentaExistsException e) {
+                model.addAttribute("error", e.getMessage());
+                model.addAttribute("tiposCuenta", TipoCuenta.values());
+                return "cuenta-form";
+            }
         }
         return "redirect:/cuentas";
     }

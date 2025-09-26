@@ -11,6 +11,10 @@
     <h1 th:if="${cuenta.id == null}">Agregar Cuenta</h1>
     <h1 th:if="${cuenta.id != null}">Editar Cuenta</h1>
 
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <p th:text="${error}"></p>
+    </div>
+
     <form th:action="${cuenta.id == null} ? @{/admin/cuentas} : @{/admin/cuentas/editar/{id}(id=${cuenta.id})}" th:object="${cuenta}" method="post">
         <div class="mb-3">
             <label for="codigo" class="form-label">Código</label>
